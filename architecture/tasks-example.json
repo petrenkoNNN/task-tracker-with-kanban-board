@@ -1,0 +1,29 @@
+{
+  "projectInfo": {
+    "name": "Kanban Web Tracker",
+    "version": "1.0.0"
+  },
+  "columns": [
+    { "id": "todo", "title": "Нужно сделать", "order": 1 },
+    { "id": "in-progress", "title": "В работе", "order": 2 },
+    { "id": "done", "title": "Готово", "order": 3 }
+  ],
+  "tasks": [
+    {
+      "id": "task-1712581200000",
+      "title": "Спроектировать БД",
+      "description": "Подготовить JSON-схему для первого спринта",
+      "statusId": "in-progress",
+      "createdAt": "2024-04-08T10:00:00Z",
+      "priority": "high"
+    },
+    {
+      "id": "task-1712581250000",
+      "title": "Верстка доски",
+      "description": "Создать адаптивный HTML-каркас",
+      "statusId": "todo",
+      "createdAt": "2024-04-08T11:30:00Z",
+      "priority": "medium"
+    }
+  ]
+}
