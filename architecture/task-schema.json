@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KanbanTrackerModel",
+  "type": "object",
+  "required": ["columns", "tasks"],
+  "properties": {
+    "columns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "order": { "type": "integer" }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "statusId"],
+        "properties": {
+          "id": { "type": "string", "description": "Уникальный ID (timestamp или UUID)" },
+          "title": { "type": "string", "minLength": 1, "description": "Название задачи" },
+          "description": { "type": "string", "description": "Опциональное описание" },
+          "statusId": { "type": "string", "description": "Связь с ID колонки" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "priority": { "enum": ["low", "medium", "high"] }
+        }
+      }
+    }
+  }
+}
