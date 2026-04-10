@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Канбан Доска</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- Заголовок -->
+        <header>
+            <h1>КАНБАН ДОСКА</h1>
+            <p class="subtitle">Управляйте задачами эффективно и просто</p>
+        </header>
+
+        <!-- Панель управления: ввод и статистика -->
+        <div class="control-panel">
+            <div class="input-area">
+                <input type="text" placeholder="Введите название новой задачи...">
+                <button>Добавить</button>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">Всего</span>
+                    <span class="stat-value">0</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-label">В работе</span>
+                    <span class="stat-value">0</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-label">Готово</span>
+                    <span class="stat-value">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Доска с колонками -->
+        <div class="board">
+            
+            <!-- Колонка To Do -->
+            <div class="column">
+                <div class="column-header">
+                    <h2>To Do</h2>
+                    <span class="col-badge">0</span>
+                </div>
+                <div class="task-list">
+                    <!-- Подсказка -->
+                    <div class="empty-msg">Добавьте свою первую задачу выше</div>
+                    
+                    <!-- Пример задачи -->
+                    <div class="task-card example-card">
+                        <span class="task-title">Пример: Изучить техническое задание</span>
+                        <span class="example-tag">Пример</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Колонка In Progress -->
+            <div class="column">
+                <div class="column-header">
+                    <h2>In Progress</h2>
+                    <span class="col-badge">0</span>
+                </div>
+                <div class="task-list">
+                    <div class="empty-msg">Задачи в работе появятся здесь</div>
+                </div>
+            </div>
+
+            <!-- Колонка Done -->
+            <div class="column">
+                <div class="column-header">
+                    <h2>Done</h2>
+                    <span class="col-badge">0</span>
+                </div>
+                <div class="task-list">
+                    <div class="empty-msg">Выполненные задачи будут тут</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Блок инструкции -->
+        <div class="help-section">
+            <div class="help-content">
+                <h3>Как пользоваться</h3>
+                <ul class="help-list">
+                    <li>
+                        <span class="help-icon">1</span>
+                        <span>Введите название задачи в поле сверху</span>
+                    </li>
+                    <li>
+                        <span class="help-icon">2</span>
+                        <span>Нажмите кнопку «Добавить»</span>
+                    </li>
+                    <li>
+                        <span class="help-icon">3</span>
+                        <span>Перемещайте задачи между колонками по мере выполнения</span>
+                    </li>
+                    <li>
+                        <span class="help-icon">4</span>
+                        <span>Удаляйте выполненные задачи кнопкой «Удалить»</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
