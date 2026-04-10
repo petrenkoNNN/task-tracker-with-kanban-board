@@ -1,0 +1,358 @@
+/* Общие настройки */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f4f8;
+    color: #0f172a;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Заголовок */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    color: #1e3a8a;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 3.5rem;
+    font-weight: 900;
+    text-shadow: 2px 2px 4px rgba(30, 58, 138, 0.1);
+}
+
+.subtitle {
+    color: #475569;
+    margin-top: 10px;
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+/* Панель управления */
+.control-panel {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid #cbd5e1;
+}
+
+.input-area {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    justify-content: center;
+}
+
+input[type="text"] {
+    padding: 14px 20px;
+    width: 100%;
+    max-width: 450px;
+    border: 2px solid #94a3b8;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    outline: none;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    color: #0f172a;
+}
+
+input[type="text"]:focus {
+    border-color: #1e40af;
+    box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.15);
+}
+
+button {
+    padding: 14px 32px;
+    background-color: #1e40af;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.3);
+    font-family: 'Inter', sans-serif;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    background-color: #1e3a8a;
+    box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.4);
+}
+
+/* Статистика */
+.stats-bar {
+    display: flex;
+    gap: 30px;
+    background-color: #f8fafc;
+    padding: 12px 35px;
+    border-radius: 50px;
+    border: 1px solid #cbd5e1;
+    width: 100%;
+    max-width: 600px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 90px;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1e40af;
+    font-feature-settings: "tnum";
+}
+
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background-color: #94a3b8;
+}
+
+/* Доска и колонки */
+.board {
+    display: flex;
+    gap: 25px;
+    flex-grow: 1;
+    overflow-x: auto;
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+    align-items: flex-start;
+}
+
+.column {
+    flex: 1;
+    background-color: #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    min-width: 300px;
+    border: 1px solid #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05);
+}
+
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #1e40af;
+}
+
+.column h2 {
+    color: #1e3a8a;
+    margin: 0;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.col-badge {
+    background-color: #1e40af;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 20px;
+    min-width: 24px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(30, 64, 175, 0.3);
+}
+
+.task-list {
+    flex-grow: 1;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Карточки задач */
+.task-card {
+    background-color: white;
+    padding: 18px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid #1e40af;
+    transition: all 0.2s;
+    border: 1px solid #cbd5e1;
+}
+
+.task-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
+}
+
+/* Пример задачи */
+.example-card {
+    opacity: 0.7;
+    border-left-color: #64748b;
+    background-color: #f1f5f9;
+    border-style: dashed;
+    margin-top: auto;
+    margin-bottom: 0;
+}
+
+.example-tag {
+    font-size: 0.75rem;
+    background-color: #cbd5e1;
+    color: #334155;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.task-title {
+    font-size: 1.05rem;
+    word-break: break-word;
+    margin-right: 10px;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.delete-btn {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    padding: 8px 14px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+}
+
+.delete-btn:hover {
+    background-color: #b91c1c;
+    color: white;
+    border-color: #b91c1c;
+}
+
+/* Сообщение о пустой колонке */
+.empty-msg {
+    text-align: center;
+    color: #64748b;
+    font-style: italic;
+    margin-top: 40px;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Блок инструкции */
+.help-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.help-content {
+    background: white;
+    padding: 35px 50px;
+    border-radius: 16px;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+    width: 100%;
+    max-width: 900px;
+}
+
+.help-content h3 {
+    margin-top: 0;
+    color: #1e3a8a;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+}
+
+.help-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.help-list li {
+    display: flex;
+    align-items: flex-start;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #334155;
+}
+
+.help-icon {
+    background-color: #1e40af;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-right: 15px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    box-shadow: 0 2px 4px rgba(30, 64, 175, 0.3);
+}
+
+.tech-note {
+    margin-top: 35px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 1.1rem;
+    color: #64748b;
+    text-align: center;
+    font-style: italic;
+    grid-column: 1 / -1;
+}
