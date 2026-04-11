@@ -1,0 +1,36 @@
+{
+  "tasks": [
+    {
+      "id": "test-long-title",
+      "title": "Очень длинное название задачи, которое состоит из огромного количества слов, чтобы проверить, не вылезет ли оно за границы карточки и не сломает ли всю верстку нашей прекрасной канбан-доски",
+      "description": "Простая проверка переноса строк",
+      "statusId": "todo",
+      "createdAt": "2024-04-11T12:00:00Z",
+      "priority": "low"
+    },
+    {
+      "id": "test-special-symbols",
+      "title": "Заголовок с символами: !@#$%^&*()_+",
+      "description": "Проверка корректного отображения спецсимволов",
+      "statusId": "in-progress",
+      "createdAt": "2024-04-11T12:05:00Z",
+      "priority": "medium"
+    },
+    {
+      "id": "test-empty-description",
+      "title": "Задача без описания",
+      "description": "", 
+      "statusId": "done",
+      "createdAt": "2024-04-11T12:10:00Z",
+      "priority": "high"
+    },
+    {
+      "id": "test-xss",
+      "title": "<script>alert('test')</script>",
+      "description": "Попытка вставить скрипт в название",
+      "statusId": "todo",
+      "createdAt": "2024-04-11T12:15:00Z",
+      "priority": "low"
+    }
+  ]
+}
