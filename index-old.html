@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Task Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">Задачи</div>
+        
+        <div class="form-container">
+            <form class="create-form" id="taskForm">
+                <input type="text" id="taskInput" placeholder="Введите название задачи..." required autocomplete="off">
+                <button type="submit" class="btn-primary">Создать</button>
+            </form>
+        </div>
+        
+        <div class="spacer"></div>
+    </header>
+
+    <div class="board-container">
+        
+        <!-- Колонка 1: To Do -->
+        <div class="column" id="col-todo">
+            <div class="column-header">
+                <span>To Do</span>
+                <span class="counter">0</span>
+            </div>
+            <div class="task-list">
+                <div class="empty-state">Пусто</div>
+            </div>
+        </div>
+
+        <!-- Колонка 2: In Progress -->
+        <div class="column" id="col-progress">
+            <div class="column-header">
+                <span>In Progress</span>
+                <span class="counter">0</span>
+            </div>
+            <div class="task-list">
+                <div class="empty-state">Пусто</div>
+            </div>
+        </div>
+
+        <!-- Колонка 3: Done -->
+        <div class="column" id="col-done">
+            <div class="column-header">
+                <span>Done</span>
+                <span class="counter">0</span>
+            </div>
+            <div class="task-list">
+                <div class="empty-state">Пусто</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
