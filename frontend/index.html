@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Innotech — Task Board</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-950: #042C53;
+      --blue-800: #0C447C;
+      --blue-600: #185FA5;
+      --blue-400: #378ADD;
+      --blue-200: #85B7EB;
+      --blue-100: #B5D4F4;
+      --blue-50:  #E6F1FB;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+body {
+  font-family: var(--font);
+  background: linear-gradient(135deg, #e6f1fb, #f8fbff);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  font-size: 16px;
+}
+
+    /* ── Header ── */
+    .kb-header {
+      backdrop-filter: blur(10px);
+      background: rgba(4,44,83,0.9);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);  
+      padding: clamp(8px, 3vw, 14px) clamp(12px, 5vw, 28px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .kb-logo { display: flex; align-items: center; gap: 8px; }
+    .kb-logo-mark {
+      width: clamp(28px, 8vw, 34px); 
+      height: clamp(28px, 8vw, 34px);
+      background: var(--blue-400);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(14px, 4vw, 18px);
+      flex-shrink: 0;
+    }
+    .kb-logo-text { font-size: clamp(12px, 3vw, 15px); font-weight: 600; color: #fff; }
+    .kb-logo-sub  { font-size: clamp(9px, 2vw, 11px); color: var(--blue-200); letter-spacing: .04em; display: none; }
+
+    .kb-add-btn {
+      background: var(--blue-600);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: clamp(5px, 1.5vw, 8px) clamp(10px, 3vw, 18px);
+      font-size: clamp(11px, 2.5vw, 13px);
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s;
+      animation: pulse 2.5s infinite;
+      white-space: nowrap;
+    }
+
+    @keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(55,138,221,0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(55,138,221,0); }
+  100% { box-shadow: 0 0 0 0 rgba(55,138,221,0); }
+}
+    .kb-add-btn:hover { background: var(--blue-400); }
+
+    /* ── Toolbar ── */
+    .kb-toolbar {
+      backdrop-filter: blur(10px);
+      background: rgba(12,68,124,0.85);
+      padding: clamp(6px, 2vw, 9px) clamp(12px, 4vw, 28px);
+      display: flex;
+      align-items: center;
+      gap: clamp(8px, 2vw, 12px);
+      flex-wrap: wrap;
+    }
+    .kb-search, .kb-filter {
+      background: var(--blue-950);
+      border: 1px solid var(--blue-600);
+      border-radius: var(--radius-md);
+      color: var(--blue-100);
+      padding: clamp(4px, 1vw, 6px) clamp(8px, 2vw, 12px);
+      font-size: clamp(11px, 2vw, 13px);
+      outline: none;
+      font-family: var(--font);
+    }
+    .kb-search { flex: 1; min-width: clamp(120px, 40vw, 230px); }
+    .kb-search::placeholder { color: var(--blue-200); }
+    .kb-filter { cursor: pointer; }
+    .kb-sprint-label { margin-left: auto; font-size: clamp(10px, 1.8vw, 12px); color: var(--blue-200); }
+
+    /* ── Counters ── */
+    .kb-counters {
+      margin-left: auto;
+      display: flex;
+      gap: clamp(4px, 1vw, 8px);
+      font-size: clamp(10px, 1.8vw, 12px);
+      color: var(--blue-200);
+      flex-wrap: wrap;
+    }
+    .kb-counter {
+      background: var(--blue-950);
+      padding: clamp(2px, 0.8vw, 4px) clamp(6px, 1.5vw, 10px);
+      border-radius: 4px;
+      border-left: 2px solid var(--blue-400);
+      white-space: nowrap;
+    }
+    .kb-counter-label { opacity: 0.8; }
+    .kb-counter-value { font-weight: 600; color: var(--blue-100); }
+
+    /* ── Toast ── */
+    .kb-toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--blue-950);
+      color: var(--blue-100);
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity .2s;
+      pointer-events: none;
+    }
+    .kb-toast.show { opacity: 1; }
+
+    /* ── Board ── */
+    .kb-board {
+      flex: 1;
+      padding: clamp(12px, 3vw, 20px) clamp(12px, 4vw, 28px) clamp(12px, 3vw, 28px);
+      display: flex;
+      gap: clamp(12px, 3vw, 16px);
+      align-items: flex-start;
+      overflow-x: auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── Column ── */
+.kb-col {
+  flex: 0 0 auto;
+  width: clamp(260px, 90vw, 340px);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+  
+}
+
+.kb-card-date {
+  font-weight: 600;
+}
+
+.kb-card-date.overdue {
+  color: #ef4444;
+}
+
+.kb-card-date.soon {
+  color: #f97316;
+}
+
+.kb-board::-webkit-scrollbar {
+  height: 6px;
+}
+
+.kb-board::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+
+    
+    .kb-col-header {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--blue-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .kb-col {
+  opacity: 0;
+  transform: translateY(-30px);
+  animation: columnDrop 0.6s ease forwards;
+}
+
+/* задержки для каждой колонки */
+.kb-col:nth-child(1) { animation-delay: 0.1s; }
+.kb-col:nth-child(2) { animation-delay: 0.2s; }
+.kb-col:nth-child(3) { animation-delay: 0.3s; }
+
+
+
+@keyframes columnDrop {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+    .kb-col-title-row { display: flex; align-items: center; gap: 8px; }
+    .kb-col-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .dot-todo   { background: var(--blue-100); }
+    .dot-inprog { background: var(--blue-400); }
+    .dot-review { background: var(--blue-600); }
+    .dot-done   { background: var(--blue-950); }
+
+    .kb-col-name  { font-size: 13px; font-weight: 600; color: var(--blue-950); }
+    .kb-col-count {
+      font-size: 11px; font-weight: 600;
+      background: var(--blue-400); color: #fff;
+      border-radius: 10px; padding: 1px 8px;
+    }
+    .kb-col-plus {
+      background: none; border: none;
+      color: var(--blue-400);
+      font-size: 20px; line-height: 1;
+      cursor: pointer; border-radius: 4px;
+      padding: 0 3px;
+      transition: color .12s;
+    }
+    .kb-col-plus:hover { color: var(--blue-950); }
+
+    .kb-col-body {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 60px;
+      transition: background .15s;
+    }
+    .kb-col-body.drag-over { background: var(--blue-50); }
+
+    /* ── Card ── */
+.kb-card {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  cursor: grab;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+  border: none;
+}
+
+.kb-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+  transform: perspective(500px) rotateX(2deg) rotateY(2deg);
+}
+    .kb-card.dragging { opacity: .35; }
+
+    .kb-card-tag {
+      display: inline-block;
+      font-size: 10px; font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .tag-frontend { background: var(--blue-50);  color: var(--blue-800); }
+    .tag-backend  { background: var(--blue-100); color: var(--blue-950); }
+    .tag-design   { background: var(--blue-950); color: var(--blue-200); }
+    .tag-devops   { background: var(--blue-600); color: #fff; }
+    .tag-qa       { background: var(--blue-400); color: #fff; }
+
+    .kb-card-title {
+      font-size: 13px; font-weight: 600;
+      color: var(--blue-950);
+      margin-bottom: 5px; line-height: 1.4;
+    }
+    .kb-card-desc {
+      font-size: 12px; color: var(--blue-600);
+      line-height: 1.5; margin-bottom: 8px;
+    }
+    .kb-card-footer {
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .kb-card-meta { display: flex; align-items: center; gap: 6px; }
+    .kb-card-avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--blue-400); color: #fff;
+      font-size: 9px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .kb-card-date { font-size: 11px; color: var(--blue-200); }
+    .kb-card-actions {
+      display: flex; gap: 4px;
+      opacity: 0; transition: opacity .12s;
+    }
+    .kb-card:hover .kb-card-actions { opacity: 1; }
+    .kb-card-btn {
+      background: none; border: none;
+      cursor: pointer; color: var(--blue-400);
+      font-size: 12px; padding: 2px 6px;
+      border-radius: 4px; font-family: var(--font);
+      transition: background .1s, color .1s;
+    }
+    .kb-card-btn:hover     { background: var(--blue-50); color: var(--blue-950); }
+    .kb-card-btn.del:hover { background: #FEE; color: #A00; }
+
+    /* ── Modal ── */
+    .kb-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(4,44,83,.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .kb-overlay.open { display: flex; }
+    .kb-modal {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--blue-100);
+      padding: 24px 28px;
+      width: 400px; max-width: 94vw;
+    }
+    .kb-modal-title {
+      font-size: 15px; font-weight: 600;
+      color: var(--blue-950); margin-bottom: 18px;
+    }
+    .kb-modal label {
+      display: block;
+      font-size: 12px; font-weight: 600;
+      color: var(--blue-600); margin-bottom: 4px;
+    }
+    .kb-modal input,
+    .kb-modal textarea,
+    .kb-modal select {
+      width: 100%;
+      background: var(--blue-50);
+      border: 1px solid var(--blue-100);
+      border-radius: var(--radius-md);
+      color: var(--blue-950);
+      font-size: 13px; font-family: var(--font);
+      padding: 8px 10px;
+      margin-bottom: 14px;
+      outline: none;
+      resize: vertical;
+    }
+    .kb-modal input:focus,
+    .kb-modal textarea:focus,
+    .kb-modal select:focus { border-color: var(--blue-400); }
+
+    .kb-modal-actions {
+      display: flex; gap: 8px;
+      justify-content: flex-end; margin-top: 4px;
+    }
+    .kb-modal-cancel {
+      background: none;
+      border: 1px solid var(--blue-100);
+      border-radius: var(--radius-md);
+      color: var(--blue-600);
+      padding: 8px 18px; font-size: 13px;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: background .12s;
+    }
+    .kb-modal-cancel:hover { background: var(--blue-50); }
+    .kb-modal-save {
+      background: var(--blue-600);
+      border: none;
+      border-radius: var(--radius-md);
+      color: #fff;
+      padding: 8px 18px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: var(--font);
+      transition: background .12s;
+    }
+    .kb-modal-save:hover { background: var(--blue-400); }
+
+    /* ── Loader ── */
+    .kb-loader {
+      text-align: center;
+      color: var(--blue-400);
+      font-size: 14px;
+      padding: 40px 0;
+      width: 100%;
+    }
+.kb-col {
+  box-shadow: 
+    0 10px 25px rgba(0,0,0,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.kb-card.dragging {
+  transform: rotate(4deg) scale(1.05);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+.kb-col:hover {
+  box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+  transform: translateY(-4px);
+}
+
+
+/* To Do — насыщенный синий */
+.kb-col:nth-child(1) {
+  background: linear-gradient(180deg, #bfdbfe 0%, #ffffff 80%);
+  border-top: 1px solid #3b82f6;
+}
+
+/* In Progress — насыщенный оранжевый */
+.kb-col:nth-child(2) {
+  background: linear-gradient(180deg, #fed7aa 0%, #ffffff 80%);
+  border-top: 1px solid #f97316;
+}
+
+/* Done — насыщенный зелёный */
+.kb-col:nth-child(3) {
+  background: linear-gradient(180deg, #bbf7d0 0%, #ffffff 80%);
+  border-top: 1px solid #22c55e;
+}
+
+@media (max-width: 768px) {
+  .kb-logo-sub { display: block; }
+  .kb-board { gap: clamp(10px, 2vw, 12px); }
+  .kb-col { width: clamp(240px, 85vw, 320px); }
+}
+
+@media (max-width: 480px) {
+  .kb-logo-sub { display: none; }
+  .kb-header { padding: clamp(6px, 2vw, 10px) clamp(10px, 3vw, 12px); }
+  .kb-toolbar { padding: clamp(4px, 1.5vw, 6px) clamp(10px, 3vw, 12px); }
+  .kb-board { padding: clamp(8px, 2vw, 12px) clamp(8px, 3vw, 12px); }
+  .kb-col { width: clamp(220px, 90vw, 280px); }
+  .kb-counters { gap: clamp(2px, 0.5vw, 4px); }
+}
+
+@media (max-width: 360px) {
+  .kb-col { width: 100%; }
+  .kb-board { gap: 8px; flex-direction: column; }
+}
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="kb-header">
+  <div class="kb-logo">
+    <div class="kb-logo-mark">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#E6F1FB"/>
+        <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#85B7EB"/>
+        <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#85B7EB"/>
+        <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#E6F1FB"/>
+      </svg>
+    </div>
+    <div>
+      <div class="kb-logo-text">Innotech</div>
+      <div class="kb-logo-sub">Task Board</div>
+    </div>
+  </div>
+  <button class="kb-add-btn" id="addBtn">+ Add task</button>
+</header>
+
+<!-- Toolbar -->
+<div class="kb-toolbar">
+  <input class="kb-search" id="searchInput" type="text" placeholder="Search tasks…">
+  <select class="kb-filter" id="tagFilter">
+    <option value="">All tags</option>
+    <option value="frontend">Frontend</option>
+    <option value="backend">Backend</option>
+    <option value="design">Design</option>
+    <option value="devops">DevOps</option>
+    <option value="qa">QA</option>
+  </select>
+
+  <div class="kb-counters" id="counters"></div>
+</div>
+
+<!-- Board -->
+<main class="kb-board" id="board">
+  <div class="kb-loader">Loading board…</div>
+</main>
+
+<!-- Modal -->
+<div class="kb-overlay" id="overlay">
+  <div class="kb-modal" id="modal">
+    <div class="kb-modal-title" id="modalTitle">Add task</div>
+
+    <label>Title *</label>
+    <input id="fTitle" type="text" placeholder="Task title" maxlength="120">
+
+    <label>Description</label>
+    <textarea id="fDesc" rows="2" placeholder="Optional description" maxlength="500"></textarea>
+
+    <label>Tag</label>
+    <select id="fTag">
+      <option value="frontend">Frontend</option>
+      <option value="backend">Backend</option>
+      <option value="design">Design</option>
+      <option value="devops">DevOps</option>
+      <option value="qa">QA</option>
+    </select>
+
+    <label>Assignee initials</label>
+    <input id="fAssignee" type="text" placeholder="e.g. AK" maxlength="3">
+
+    <label>Due date</label>
+    <input id="fDate" type="text" placeholder="e.g. Apr 28">
+
+    <label>Column</label>
+    <select id="fCol">
+      <option value="todo">To Do</option>
+      <option value="inprog">In Progress</option>
+      <option value="review">Review</option>
+      <option value="done">Done</option>
+    </select>
+
+    <div class="kb-modal-actions">
+      <button class="kb-modal-cancel" id="cancelBtn">Cancel</button>
+      <button class="kb-modal-save"   id="saveBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="kb-toast" id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'kanban_tasks';
+
+function getTasks() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+}
+
+function saveTasks(tasks) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+const COLUMNS = [
+  { id: 'todo',   name: 'To Do',       dot: 'dot-todo'   },
+  { id: 'inprog', name: 'In Progress', dot: 'dot-inprog' },
+  { id: 'done',   name: 'Done',        dot: 'dot-done'   },
+];
+
+  let tasks      = [];
+  let editId     = null;
+  let dragTaskId = null;
+
+  // ── API helpers ─────────────────────────────────────────────────────────
+  async function apiFetch(url, opts = {}) {
+    const res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+      ...opts,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(err.error || res.statusText);
+    }
+    return res.json();
+  }
+
+async function loadTasks() {
+  let all = getTasks();
+
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const tag = document.getElementById('tagFilter').value;
+
+  // фильтрация
+  all = all.filter(task => {
+    const matchText =
+      task.title.toLowerCase().includes(search) ||
+      (task.description || '').toLowerCase().includes(search);
+
+    const matchTag = tag ? task.tag === tag : true;
+
+    return matchText && matchTag;
+  });
+
+  tasks = all;
+  renderBoard();
+}
+
+  // ── Render ───────────────────────────────────────────────────────────────
+  function renderBoard() {
+    const board = document.getElementById('board');
+    board.innerHTML = COLUMNS.map(col => {
+      const colTasks = tasks.filter(t => t.column_id === col.id);
+      return `
+      <div class="kb-col">
+        <div class="kb-col-header">
+          <div class="kb-col-title-row">
+            <div class="kb-col-dot ${col.dot}"></div>
+            <span class="kb-col-name">${col.name}</span>
+            <span class="kb-col-count">${colTasks.length}</span>
+          </div>
+          <button class="kb-col-plus" data-col="${col.id}" title="Add task to ${col.name}">+</button>
+        </div>
+        <div class="kb-col-body"
+          data-col="${col.id}"
+          ondragover="onDragOver(event)"
+          ondragleave="onDragLeave(event)"
+          ondrop="onDrop(event,'${col.id}')">
+          ${colTasks.map(renderCard).join('')}
+        </div>
+      </div>`;
+    }).join('');
+
+    // Column + buttons
+    board.querySelectorAll('.kb-col-plus').forEach(btn => {
+      btn.addEventListener('click', () => openModal(btn.dataset.col));
+    });
+    
+    updateCounters();
+  }
+
+  function updateCounters() {
+    const counters = document.getElementById('counters');
+    counters.innerHTML = COLUMNS.map(col => {
+      const count = tasks.filter(t => t.column_id === col.id).length;
+      return `<div class="kb-counter"><span class="kb-counter-label">${col.name}:</span> <span class="kb-counter-value">${count}</span></div>`;
+    }).join('');
+  }
+
+  function renderCard(t) {
+    return `
+    <div class="kb-card" id="card-${t.id}"
+      draggable="true"
+      ondragstart="onDragStart(event,${t.id})"
+      ondragend="onDragEnd(event)">
+      <span class="kb-card-tag tag-${t.tag}">${t.tag}</span>
+      <div class="kb-card-title">${esc(t.title)}</div>
+      ${t.description ? `<div class="kb-card-desc">${esc(t.description)}</div>` : ''}
+      <div class="kb-card-footer">
+        <div class="kb-card-meta">
+          <div class="kb-card-avatar">${esc(t.assignee || '?')}</div>
+          <span class="kb-card-date">${esc(t.due_date || '')}</span>
+        </div>
+        <div class="kb-card-actions">
+          <button class="kb-card-btn" onclick="openEdit(${t.id})">Edit</button>
+          <button class="kb-card-btn del" onclick="deleteTask(${t.id})">Del</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function esc(s) {
+    return String(s || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Drag & Drop ──────────────────────────────────────────────────────────
+  function onDragStart(e, id) {
+    dragTaskId = id;
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => {
+      const el = document.getElementById('card-' + id);
+      if (el) el.classList.add('dragging');
+    }, 0);
+  }
+  function onDragEnd() {
+    if (dragTaskId) {
+      const el = document.getElementById('card-' + dragTaskId);
+      if (el) el.classList.remove('dragging');
+    }
+    document.querySelectorAll('.kb-col-body').forEach(b => b.classList.remove('drag-over'));
+    dragTaskId = null;
+  }
+  function onDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+  }
+  function onDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+  async function onDrop(e, colId) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    if (!dragTaskId) return;
+    try {
+let all = getTasks();
+all = all.map(t => t.id === dragTaskId ? { ...t, column_id: colId } : t);
+saveTasks(all);
+      showToast('Task moved');
+      await loadTasks();
+    } catch (err) {
+      showToast('Error: ' + err.message);
+    }
+  }
+
+  // ── Delete ───────────────────────────────────────────────────────────────
+  async function deleteTask(id) {
+    if (!confirm('Delete this task?')) return;
+    try {
+      let all = getTasks();
+all = all.filter(t => t.id !== id);
+saveTasks(all);
+      showToast('Task deleted');
+      await loadTasks();
+    } catch (err) {
+      showToast('Error: ' + err.message);
+    }
+  }
+
+  // ── Modal ────────────────────────────────────────────────────────────────
+  function openModal(defaultCol = 'todo') {
+    editId = null;
+    document.getElementById('modalTitle').textContent = 'Add task';
+    document.getElementById('saveBtn').textContent    = 'Add';
+    clearForm();
+    document.getElementById('fCol').value = defaultCol;
+    document.getElementById('overlay').classList.add('open');
+    document.getElementById('fTitle').focus();
+  }
+
+  function openEdit(id) {
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    editId = id;
+    document.getElementById('modalTitle').textContent = 'Edit task';
+    document.getElementById('saveBtn').textContent    = 'Save';
+    document.getElementById('fTitle').value    = t.title       || '';
+    document.getElementById('fDesc').value     = t.description || '';
+    document.getElementById('fTag').value      = t.tag         || 'frontend';
+    document.getElementById('fAssignee').value = t.assignee    || '';
+    document.getElementById('fDate').value     = t.due_date    || '';
+    document.getElementById('fCol').value      = t.column_id   || 'todo';
+    document.getElementById('overlay').classList.add('open');
+    document.getElementById('fTitle').focus();
+  }
+
+  function closeModal() {
+    document.getElementById('overlay').classList.remove('open');
+    editId = null;
+  }
+
+  function clearForm() {
+    ['fTitle','fDesc','fAssignee','fDate'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('fTag').value = 'frontend';
+    document.getElementById('fCol').value = 'todo';
+  }
+
+  async function saveModal() {
+    const title = document.getElementById('fTitle').value.trim();
+    if (!title) { document.getElementById('fTitle').focus(); return; }
+
+    const payload = {
+      title,
+      description: document.getElementById('fDesc').value.trim(),
+      tag:         document.getElementById('fTag').value,
+      assignee:    document.getElementById('fAssignee').value.trim() || '?',
+      due_date:    document.getElementById('fDate').value.trim(),
+      column_id:   document.getElementById('fCol').value,
+    };
+
+    try {
+      if (editId) {
+        await apiFetch(`${API}/${editId}`, { method: 'PUT', body: JSON.stringify(payload) });
+        showToast('Task updated');
+      } else {
+        if (editId) {
+  let all = getTasks();
+  all = all.map(t => t.id === editId ? { ...t, ...payload } : t);
+  saveTasks(all);
+} else {
+  const all = getTasks();
+  all.push({ id: Date.now(), ...payload });
+  saveTasks(all);
+}
+        showToast('Task created');
+      }
+      closeModal();
+      await loadTasks();
+    } catch (err) {
+      showToast('Error: ' + err.message);
+    }
+  }
+
+  // ── Toast ────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  // ── Event wiring ─────────────────────────────────────────────────────────
+  document.getElementById('addBtn').addEventListener('click',    () => openModal());
+  document.getElementById('cancelBtn').addEventListener('click', closeModal);
+  document.getElementById('saveBtn').addEventListener('click',   saveModal);
+  document.getElementById('overlay').addEventListener('click',   e => {
+    if (e.target === document.getElementById('overlay')) closeModal();
+  });
+  document.getElementById('fTitle').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveModal();
+    if (e.key === 'Escape') closeModal();
+  });
+  document.getElementById('searchInput').addEventListener('input', loadTasks);
+  document.getElementById('tagFilter').addEventListener('change',  loadTasks);
+
+  // ── Boot ─────────────────────────────────────────────────────────────────
+  loadTasks();
+</script>
+</body>
+</html>

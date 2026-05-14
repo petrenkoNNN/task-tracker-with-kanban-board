@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Innotech - Unit Tests</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
+    .test-container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { color: #042C53; margin-bottom: 20px; }
+    .test-suite { margin-bottom: 20px; border-left: 4px solid #185FA5; padding-left: 16px; }
+    .test-case { margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 4px; }
+    .pass { color: #22c55e; font-weight: 600; }
+    .fail { color: #c00; font-weight: 600; }
+    .test-result { display: flex; gap: 10px; align-items: center; }
+    .stats { margin-top: 20px; padding: 16px; background: #E6F1FB; border-radius: 8px; }
+    .stats-row { display: flex; justify-content: space-between; margin: 5px 0; }
+  </style>
+</head>
+<body>
+<div class="test-container">
+  <h1>🧪 Innotech Unit Tests</h1>
+  <div id="tests"></div>
+</div>
+
+<script>
+// Validation functions
+function validateTaskTitle(title) {
+  if (!title || typeof title !== 'string') return { valid: false, error: 'Title must be string' };
+  if (title.trim().length === 0) return { valid: false, error: 'Title cannot be empty' };
+  if (title.length > 100) return { valid: false, error: 'Title max 100 chars' };
+  return { valid: true };
+}
+
+function validateTaskDescription(desc) {
+  if (desc === undefined || desc === null) return { valid: true };
+  if (typeof desc !== 'string') return { valid: false, error: 'Description must be string' };
+  if (desc.length > 500) return { valid: false, error: 'Description max 500 chars' };
+  return { valid: true };
+}
+
+function validateTaskTag(tag) {
+  const validTags = ['frontend', 'backend', 'design', 'devops', 'qa'];
+  if (!validTags.includes(tag)) return { valid: false, error: 'Invalid tag' };
+  return { valid: true };
+}
+
+function validateTaskColumn(col) {
+  const validCols = ['todo', 'inprog', 'done'];
+  if (!validCols.includes(col)) return { valid: false, error: 'Invalid column' };
+  return { valid: true };
+}
+
+function validateTask(task) {
+  if (!task || typeof task !== 'object') return { valid: false, error: 'Task must be object' };
+  if (task.id === undefined) return { valid: false, error: 'Task must have id' };
+  
+  const titleVal = validateTaskTitle(task.title);
+  if (!titleVal.valid) return titleVal;
+  
+  const descVal = validateTaskDescription(task.description);
+  if (!descVal.valid) return descVal;
+  
+  const tagVal = validateTaskTag(task.tag);
+  if (!tagVal.valid) return tagVal;
+  
+  const colVal = validateTaskColumn(task.column_id);
+  if (!colVal.valid) return colVal;
+  
+  return { valid: true };
+}
+
+// Test runner
+let totalTests = 0, passTests = 0;
+function test(name, fn) {
+  totalTests++;
+  try {
+    fn();
+    passTests++;
+    return { pass: true, name };
+  } catch (e) {
+    return { pass: false, name, error: e.message };
+  }
+}
+
+function assert(condition, message) {
+  if (!condition) throw new Error(message || 'Assertion failed');
+}
+
+// Tests
+const tests = [];
+
+// Title validation tests
+tests.push(test('Title: Valid title', () => {
+  const result = validateTaskTitle('My Task');
+  assert(result.valid === true, 'Should be valid');
+}));
+
+tests.push(test('Title: Empty string', () => {
+  const result = validateTaskTitle('');
+  assert(result.valid === false, 'Empty should fail');
+}));
+
+tests.push(test('Title: Too long (100+ chars)', () => {
+  const result = validateTaskTitle('a'.repeat(101));
+  assert(result.valid === false, 'Should fail > 100 chars');
+}));
+
+tests.push(test('Title: Null/undefined', () => {
+  assert(validateTaskTitle(null).valid === false, 'Null should fail');
+  assert(validateTaskTitle(undefined).valid === false, 'Undefined should fail');
+}));
+
+tests.push(test('Title: Not string', () => {
+  const result = validateTaskTitle(123);
+  assert(result.valid === false, 'Number should fail');
+}));
+
+// Description validation tests
+tests.push(test('Description: Valid', () => {
+  const result = validateTaskDescription('Task description');
+  assert(result.valid === true, 'Should be valid');
+}));
+
+tests.push(test('Description: Optional (null)', () => {
+  const result = validateTaskDescription(null);
+  assert(result.valid === true, 'Null should be valid');
+}));
+
+tests.push(test('Description: Too long (500+ chars)', () => {
+  const result = validateTaskDescription('a'.repeat(501));
+  assert(result.valid === false, 'Should fail > 500 chars');
+}));
+
+// Tag validation tests
+tests.push(test('Tag: Valid - frontend', () => {
+  const result = validateTaskTag('frontend');
+  assert(result.valid === true, 'Frontend should be valid');
+}));
+
+tests.push(test('Tag: Valid - all tags', () => {
+  ['frontend', 'backend', 'design', 'devops', 'qa'].forEach(tag => {
+    assert(validateTaskTag(tag).valid === true, tag + ' should be valid');
+  });
+}));
+
+tests.push(test('Tag: Invalid tag', () => {
+  const result = validateTaskTag('invalid');
+  assert(result.valid === false, 'Invalid tag should fail');
+}));
+
+// Column validation tests
+tests.push(test('Column: Valid - todo', () => {
+  const result = validateTaskColumn('todo');
+  assert(result.valid === true, 'todo should be valid');
+}));
+
+tests.push(test('Column: All valid columns', () => {
+  ['todo', 'inprog', 'done'].forEach(col => {
+    assert(validateTaskColumn(col).valid === true, col + ' should be valid');
+  });
+}));
+
+tests.push(test('Column: Invalid column', () => {
+  const result = validateTaskColumn('invalid');
+  assert(result.valid === false, 'Invalid column should fail');
+}));
+
+// Full task validation tests
+tests.push(test('Task: Valid complete task', () => {
+  const task = {
+    id: 1,
+    title: 'Test Task',
+    description: 'Test Description',
+    tag: 'frontend',
+    column_id: 'todo'
+  };
+  const result = validateTask(task);
+  assert(result.valid === true, 'Valid task should pass');
+}));
+
+tests.push(test('Task: Missing required field', () => {
+  const task = { title: 'Test', tag: 'frontend', column_id: 'todo' };
+  const result = validateTask(task);
+  assert(result.valid === false, 'Missing id should fail');
+}));
+
+tests.push(test('Task: Invalid tag in full validation', () => {
+  const task = {
+    id: 1,
+    title: 'Test',
+    tag: 'invalid',
+    column_id: 'todo'
+  };
+  const result = validateTask(task);
+  assert(result.valid === false, 'Invalid tag should fail');
+}));
+
+tests.push(test('Task: Not an object', () => {
+  const result = validateTask('not an object');
+  assert(result.valid === false, 'String should fail');
+}));
+
+// Render results
+const testResults = document.getElementById('tests');
+const suites = {
+  'Title Validation': tests.slice(0, 5),
+  'Description Validation': tests.slice(5, 8),
+  'Tag Validation': tests.slice(8, 11),
+  'Column Validation': tests.slice(11, 14),
+  'Full Task Validation': tests.slice(14, 18)
+};
+
+Object.entries(suites).forEach(([suiteName, suiteTests]) => {
+  const html = `
+    <div class="test-suite">
+      <h3>${suiteName}</h3>
+      ${suiteTests.map(t => `
+        <div class="test-case">
+          <div class="test-result">
+            <span class="${t.pass ? 'pass' : 'fail'}">${t.pass ? '✓ PASS' : '✗ FAIL'}</span>
+            <span>${t.name}</span>
+          </div>
+          ${t.error ? `<div style="color: #c00; font-size: 12px; margin-top: 5px;">Error: ${t.error}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `;
+  testResults.innerHTML += html;
+});
+
+const statsHtml = `
+  <div class="stats">
+    <h3>📊 Test Results</h3>
+    <div class="stats-row">
+      <span>Total Tests:</span>
+      <strong>${totalTests}</strong>
+    </div>
+    <div class="stats-row">
+      <span>Passed:</span>
+      <strong style="color: #22c55e;">${passTests} ✓</strong>
+    </div>
+    <div class="stats-row">
+      <span>Failed:</span>
+      <strong style="color: #c00;">${totalTests - passTests} ✗</strong>
+    </div>
+    <div class="stats-row">
+      <span>Success Rate:</span>
+      <strong style="color: ${passTests === totalTests ? '#22c55e' : '#f97316'};">${((passTests / totalTests) * 100).toFixed(0)}%</strong>
+    </div>
+  </div>
+`;
+testResults.innerHTML += statsHtml;
+</script>
+</body>
+</html>
