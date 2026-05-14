@@ -1,63 +1,90 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kanban Task Tracker</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Innotech — Task Board</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <div class="logo">Задачи</div>
-        
-        <div class="form-container">
-            <form class="create-form" id="taskForm">
-                <input type="text" id="taskInput" placeholder="Введите название задачи..." required autocomplete="off">
-                <button type="submit" class="btn-primary">Создать</button>
-            </form>
-        </div>
-        
-        <div class="spacer"></div>
-    </header>
-
-    <div class="board-container">
-        
-        <!-- Колонка 1: To Do -->
-        <div class="column" id="col-todo">
-            <div class="column-header">
-                <span>To Do</span>
-                <span class="counter">0</span>
-            </div>
-            <div class="task-list">
-                <div class="empty-state">Пусто</div>
-            </div>
-        </div>
-
-        <!-- Колонка 2: In Progress -->
-        <div class="column" id="col-progress">
-            <div class="column-header">
-                <span>In Progress</span>
-                <span class="counter">0</span>
-            </div>
-            <div class="task-list">
-                <div class="empty-state">Пусто</div>
-            </div>
-        </div>
-
-        <!-- Колонка 3: Done -->
-        <div class="column" id="col-done">
-            <div class="column-header">
-                <span>Done</span>
-                <span class="counter">0</span>
-            </div>
-            <div class="task-list">
-                <div class="empty-state">Пусто</div>
-            </div>
-        </div>
-
+<header class="kb-header">
+  <div class="kb-logo">
+    <div class="kb-logo-mark">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#E6F1FB"/>
+        <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#85B7EB"/>
+        <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#85B7EB"/>
+        <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#E6F1FB"/>
+      </svg>
     </div>
+    <div>
+      <div class="kb-logo-text">Innotech</div>
+      <div class="kb-logo-sub">Task Board</div>
+    </div>
+  </div>
+  <button class="kb-add-btn" id="addBtn">+ Add task</button>
+</header>
 
-    <script src="script.js"></script>
+<div class="kb-toolbar">
+  <input class="kb-search" id="searchInput" type="text" placeholder="Search tasks…">
+  <select class="kb-filter" id="tagFilter">
+    <option value="">All tags</option>
+    <option value="frontend">Frontend</option>
+    <option value="backend">Backend</option>
+    <option value="design">Design</option>
+    <option value="devops">DevOps</option>
+    <option value="qa">QA</option>
+  </select>
+  <span class="kb-sprint-label">Sprint 3 · Apr 2026</span>
+</div>
+
+<main class="kb-board" id="board">
+  <div class="kb-loader">Loading board…</div>
+</main>
+
+<div class="kb-overlay" id="overlay">
+  <div class="kb-modal" id="modal">
+    <div class="kb-modal-title" id="modalTitle">Add task</div>
+
+    <label>Title *</label>
+    <input id="fTitle" type="text" placeholder="Task title" maxlength="120">
+
+    <label>Description</label>
+    <textarea id="fDesc" rows="2" placeholder="Optional description" maxlength="500"></textarea>
+
+    <label>Tag</label>
+    <select id="fTag">
+      <option value="frontend">Frontend</option>
+      <option value="backend">Backend</option>
+      <option value="design">Design</option>
+      <option value="devops">DevOps</option>
+      <option value="qa">QA</option>
+    </select>
+
+    <label>Assignee initials</label>
+    <input id="fAssignee" type="text" placeholder="e.g. AK" maxlength="3">
+
+    <label>Due date</label>
+    <input id="fDate" type="text" placeholder="e.g. Apr 28">
+
+    <label>Column</label>
+    <select id="fCol">
+      <option value="todo">To Do</option>
+      <option value="inprog">In Progress</option>
+      <option value="review">Review</option>
+      <option value="done">Done</option>
+    </select>
+
+    <div class="kb-modal-actions">
+      <button class="kb-modal-cancel" id="cancelBtn">Cancel</button>
+      <button class="kb-modal-save" id="saveBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="kb-toast" id="toast"></div>
+
+<script src="script.js"></script>
 </body>
 </html>
