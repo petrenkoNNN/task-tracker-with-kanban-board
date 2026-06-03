@@ -1,90 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Innotech — Task Board</title>
-  <link rel="stylesheet" href="style.css">
+    <title>Kanban Board</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
+        h1 { margin-bottom: 20px; }
+        .board { display: flex; gap: 16px; overflow-x: auto; }
+        .column { flex: 1; min-width: 250px; background: white; border-radius: 8px; padding: 12px; }
+        .column h2 { margin-bottom: 12px; font-size: 16px; }
+        .task { background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 8px; cursor: pointer; }
+        .task:hover { background: #eef2ff; }
+        .task-title { font-weight: 600; }
+        .add-btn { background: #0066cc; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-bottom: 16px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 100px auto; padding: 20px; width: 400px; border-radius: 8px; }
+        input, select { width: 100%; margin: 8px 0; padding: 8px; }
+        button { cursor: pointer; }
+    </style>
 </head>
 <body>
+    <h1>📋 Kanban Board</h1>
+    <button class="add-btn" id="addBtn">+ Add Task</button>
+    <div class="board" id="board"></div>
 
-<header class="kb-header">
-  <div class="kb-logo">
-    <div class="kb-logo-mark">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#E6F1FB"/>
-        <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#85B7EB"/>
-        <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#85B7EB"/>
-        <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#E6F1FB"/>
-      </svg>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add Task</h2>
+            <input type="text" id="title" placeholder="Title *">
+            <select id="tag">
+                <option value="frontend">Frontend</option>
+                <option value="backend">Backend</option>
+                <option value="design">Design</option>
+                <option value="devops">DevOps</option>
+                <option value="qa">QA</option>
+            </select>
+            <select id="col">
+                <option value="todo">To Do</option>
+                <option value="inprog">In Progress</option>
+                <option value="review">Review</option>
+                <option value="done">Done</option>
+            </select>
+            <button id="saveBtn">Save</button>
+            <button id="cancelBtn">Cancel</button>
+        </div>
     </div>
-    <div>
-      <div class="kb-logo-text">Innotech</div>
-      <div class="kb-logo-sub">Task Board</div>
-    </div>
-  </div>
-  <button class="kb-add-btn" id="addBtn">+ Add task</button>
-</header>
 
-<div class="kb-toolbar">
-  <input class="kb-search" id="searchInput" type="text" placeholder="Search tasks…">
-  <select class="kb-filter" id="tagFilter">
-    <option value="">All tags</option>
-    <option value="frontend">Frontend</option>
-    <option value="backend">Backend</option>
-    <option value="design">Design</option>
-    <option value="devops">DevOps</option>
-    <option value="qa">QA</option>
-  </select>
-  <span class="kb-sprint-label">Sprint 3 · Apr 2026</span>
-</div>
+    <script>
+        const API = 'http://localhost:3000';
+        let editId = null;
 
-<main class="kb-board" id="board">
-  <div class="kb-loader">Loading board…</div>
-</main>
+        async function load() {
+            try {
+                const res = await fetch(`${API}/tasks`);
+                const tasks = await res.json();
+                const columns = { todo: [], inprog: [], review: [], done: [] };
+                tasks.forEach(t => { if (columns[t.column_id]) columns[t.column_id].push(t); });
+                
+                const names = { todo: 'To Do', inprog: 'In Progress', review: 'Review', done: 'Done' };
+                const board = document.getElementById('board');
+                board.innerHTML = Object.entries(columns).map(([id, tasks]) => `
+                    <div class="column">
+                        <h2>${names[id]} (${tasks.length})</h2>
+                        ${tasks.map(t => `
+                            <div class="task" onclick='editTask(${JSON.stringify(t)})'>
+                                <div class="task-title">${escapeHtml(t.title)}</div>
+                                <div style="font-size:11px; color:#666">${t.tag}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('');
+            } catch(e) {
+                document.getElementById('board').innerHTML = '<p>Loading... make sure server is running</p>';
+            }
+        }
 
-<div class="kb-overlay" id="overlay">
-  <div class="kb-modal" id="modal">
-    <div class="kb-modal-title" id="modalTitle">Add task</div>
+        function escapeHtml(s) { return String(s || '').replace(/[&<>]/g, function(m) { if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
 
-    <label>Title *</label>
-    <input id="fTitle" type="text" placeholder="Task title" maxlength="120">
+        window.editTask = function(task) {
+            editId = task.id;
+            document.getElementById('title').value = task.title;
+            document.getElementById('tag').value = task.tag;
+            document.getElementById('col').value = task.column_id;
+            document.getElementById('modalTitle').innerText = 'Edit Task';
+            document.getElementById('modal').style.display = 'block';
+        };
 
-    <label>Description</label>
-    <textarea id="fDesc" rows="2" placeholder="Optional description" maxlength="500"></textarea>
+        document.getElementById('addBtn').onclick = () => {
+            editId = null;
+            document.getElementById('title').value = '';
+            document.getElementById('tag').value = 'frontend';
+            document.getElementById('col').value = 'todo';
+            document.getElementById('modalTitle').innerText = 'Add Task';
+            document.getElementById('modal').style.display = 'block';
+        };
 
-    <label>Tag</label>
-    <select id="fTag">
-      <option value="frontend">Frontend</option>
-      <option value="backend">Backend</option>
-      <option value="design">Design</option>
-      <option value="devops">DevOps</option>
-      <option value="qa">QA</option>
-    </select>
+        document.getElementById('saveBtn').onclick = async () => {
+            const title = document.getElementById('title').value.trim();
+            if (!title) return alert('Title required');
+            
+            const data = {
+                title: title,
+                tag: document.getElementById('tag').value,
+                column_id: document.getElementById('col').value,
+                assignee: '?',
+                due_date: ''
+            };
+            
+            try {
+                if (editId) {
+                    await fetch(`${API}/tasks/${editId}`, { 
+                        method: 'PUT', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify({ column_id: data.column_id }) 
+                    });
+                } else {
+                    await fetch(`${API}/tasks`, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(data) 
+                    });
+                }
+                document.getElementById('modal').style.display = 'none';
+                load();
+            } catch(e) {
+                alert('Error: ' + e.message);
+            }
+        };
 
-    <label>Assignee initials</label>
-    <input id="fAssignee" type="text" placeholder="e.g. AK" maxlength="3">
+        document.getElementById('cancelBtn').onclick = () => {
+            document.getElementById('modal').style.display = 'none';
+        };
 
-    <label>Due date</label>
-    <input id="fDate" type="text" placeholder="e.g. Apr 28">
-
-    <label>Column</label>
-    <select id="fCol">
-      <option value="todo">To Do</option>
-      <option value="inprog">In Progress</option>
-      <option value="review">Review</option>
-      <option value="done">Done</option>
-    </select>
-
-    <div class="kb-modal-actions">
-      <button class="kb-modal-cancel" id="cancelBtn">Cancel</button>
-      <button class="kb-modal-save" id="saveBtn">Save</button>
-    </div>
-  </div>
-</div>
-
-<div class="kb-toast" id="toast"></div>
-
-<script src="script.js"></script>
+        load();
+    </script>
 </body>
 </html>
