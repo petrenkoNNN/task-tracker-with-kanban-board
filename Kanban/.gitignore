@@ -1,0 +1,8 @@
+.DS_Store
+node_modules/
+.playwright-mcp/
+kanban-ru-mobile.png
+screenshots/
+data/*.json
+uploads/
+videos/
